@@ -1,0 +1,11 @@
+/**
+ * Self-hosted Black Ops One font from @fontsource/black-ops-one 5.3.0 (Latin subset, weight 400).
+ * License: SIL OFL 1.1 (LICENSE-Black-Ops-One.txt in this folder).
+ */
+@font-face {
+  font-family: "Black Ops One";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("./black-ops-one-latin-400-normal.woff2") format("woff2");
+}

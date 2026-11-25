@@ -1,0 +1,492 @@
+<!doctype html>
+<html lang="en">
+  <!--
+    Battleship Game: classic Battleship against a computer opponent (portfolio demo).
+    Sections: Opening screen, Header, Setup screen, Game screen, Result dialog, Footer.
+    Boards and fleet lists are filled in by scripts/game.js.
+  -->
+
+  <head>
+    <!-- Basic Meta -->
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Battleship Game is classic Battleship against a computer opponent with three difficulty levels, custom fleets, saved stats, and full keyboard play."
+    />
+    <meta name="author" content="NM Dev · Nitzan Mizrachi" />
+    <meta name="theme-color" content="#2a3e4a" />
+
+    <title>Battleship Game | Classic Battleship vs. the Computer</title>
+
+    <link rel="icon" href="./assets/icons/favicon.ico" type="image/x-icon" />
+    <link rel="canonical" href="https://nitzanm23.github.io/battleship-game/" />
+
+    <!-- Home screen install (Android, iOS) -->
+    <link rel="manifest" href="./manifest.webmanifest" />
+    <link rel="apple-touch-icon" href="./assets/icons/apple-touch-icon.png" />
+
+    <!-- Social sharing preview (LinkedIn, Slack, WhatsApp, X); these require absolute URLs -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Battleship Game" />
+    <meta
+      property="og:title"
+      content="Battleship Game | Classic Battleship vs. the Computer"
+    />
+    <meta
+      property="og:description"
+      content="Battleship Game is classic Battleship against a computer opponent with three difficulty levels, custom fleets, saved stats, and full keyboard play."
+    />
+    <meta
+      property="og:url"
+      content="https://nitzanm23.github.io/battleship-game/"
+    />
+    <meta
+      property="og:image"
+      content="https://nitzanm23.github.io/battleship-game/assets/images/og-image.jpg"
+    />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta
+      property="og:image:alt"
+      content="Battleship Game: the enemy board and the player's fleet during a battle, on desktop and phone"
+    />
+    <meta name="twitter:card" content="summary_large_image" />
+
+    <!-- Opening screen: must run before first paint, so no defer -->
+    <script src="./scripts/page-loader.js"></script>
+
+    <!-- Self-hosted font (vendor/) -->
+    <link
+      rel="preload"
+      href="./vendor/fonts/black-ops-one-latin-400-normal.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
+    <link rel="stylesheet" href="./vendor/fonts/fonts.css" />
+
+    <!-- The game background replaces the opening artwork after 3 s; load it during the intro -->
+    <link
+      rel="preload"
+      href="./assets/images/game-background.webp"
+      as="image"
+      type="image/webp"
+    />
+
+    <!-- Project styles -->
+    <link rel="stylesheet" href="./styles/tokens.css" />
+    <link rel="stylesheet" href="./styles/reset.css" />
+    <link rel="stylesheet" href="./styles/page-loader.css" />
+    <link rel="stylesheet" href="./styles/index.css" />
+
+    <!-- Project scripts (ES modules are deferred automatically) -->
+    <script type="module" src="./scripts/index.js"></script>
+  </head>
+
+  <body>
+    <!-- ========== OPENING SCREEN ========== -->
+    <div class="page-loader" aria-hidden="true">
+      <img
+        src="./assets/logos/logo.svg"
+        class="page-loader__logo u-shadow-white"
+        alt=""
+        width="1245"
+        height="283"
+        draggable="false"
+      />
+    </div>
+
+    <!-- ========== HEADER ========== -->
+    <header class="site-header">
+      <h1 class="site-header__title">
+        <img
+          src="./assets/logos/logo.svg"
+          class="site-header__logo u-shadow-halo"
+          alt="Battleship Game"
+          width="1245"
+          height="283"
+          draggable="false"
+        />
+      </h1>
+    </header>
+
+    <main class="app-root" id="main-content">
+      <!-- ========== SETUP SCREEN ========== -->
+      <section
+        class="setup-screen"
+        id="setup-screen"
+        aria-labelledby="setup-title"
+      >
+        <div class="setup-screen__card">
+          <h2 class="setup-screen__title" id="setup-title">
+            Prepare for battle
+          </h2>
+          <p class="setup-screen__text">
+            Sink the enemy fleet before the computer sinks yours.
+          </p>
+
+          <details class="rules">
+            <summary class="rules__summary">How to play</summary>
+            <ol class="rules__list">
+              <li>
+                Both fleets are placed at random. Ships are straight and never
+                touch, not even at the corners.
+              </li>
+              <li>
+                You fire first. Each side fires one shot per turn, even after a
+                hit.
+              </li>
+              <li>
+                Fire at the enemy board. Your own fleet and the computer's shots
+                are on the second board.
+              </li>
+              <li>Firing at a square twice does not cost your turn.</li>
+              <li>The first side to sink every enemy ship wins.</li>
+            </ol>
+          </details>
+
+          <form class="setup-form" id="setup-form" novalidate>
+            <fieldset class="setup-form__group">
+              <legend class="setup-form__legend">Opponent</legend>
+              <div class="choice-row">
+                <label class="choice">
+                  <input type="radio" name="level" value="easy" />
+                  <span>Easy <small>Random shots</small></span>
+                </label>
+                <label class="choice">
+                  <input type="radio" name="level" value="normal" checked />
+                  <span>Normal <small>Hunts after a hit</small></span>
+                </label>
+                <label class="choice">
+                  <input type="radio" name="level" value="hard" />
+                  <span>Hard <small>Searches and reads lines</small></span>
+                </label>
+              </div>
+            </fieldset>
+
+            <fieldset class="setup-form__group">
+              <legend class="setup-form__legend">Board size</legend>
+              <div class="choice-row choice-row--compact">
+                <label class="choice">
+                  <input type="radio" name="board" value="10" checked />
+                  <span>10 × 10</span>
+                </label>
+                <label class="choice">
+                  <input type="radio" name="board" value="11" />
+                  <span>11 × 11</span>
+                </label>
+                <label class="choice">
+                  <input type="radio" name="board" value="12" />
+                  <span>12 × 12</span>
+                </label>
+                <label class="choice">
+                  <input type="radio" name="board" value="13" />
+                  <span>13 × 13</span>
+                </label>
+                <label class="choice">
+                  <input type="radio" name="board" value="14" />
+                  <span>14 × 14</span>
+                </label>
+                <label class="choice">
+                  <input type="radio" name="board" value="15" />
+                  <span>15 × 15</span>
+                </label>
+              </div>
+            </fieldset>
+
+            <fieldset class="setup-form__group">
+              <legend class="setup-form__legend">Fleet (both sides)</legend>
+              <div class="fleet-inputs">
+                <label class="fleet-input">
+                  <span
+                    class="fleet-input__ship"
+                    data-length="5"
+                    aria-hidden="true"
+                  ></span>
+                  <span class="fleet-input__label">5 squares</span>
+                  <input
+                    type="number"
+                    name="fleet-5"
+                    value="1"
+                    min="0"
+                    max="30"
+                    inputmode="numeric"
+                  />
+                </label>
+                <label class="fleet-input">
+                  <span
+                    class="fleet-input__ship"
+                    data-length="4"
+                    aria-hidden="true"
+                  ></span>
+                  <span class="fleet-input__label">4 squares</span>
+                  <input
+                    type="number"
+                    name="fleet-4"
+                    value="1"
+                    min="0"
+                    max="30"
+                    inputmode="numeric"
+                  />
+                </label>
+                <label class="fleet-input">
+                  <span
+                    class="fleet-input__ship"
+                    data-length="3"
+                    aria-hidden="true"
+                  ></span>
+                  <span class="fleet-input__label">3 squares</span>
+                  <input
+                    type="number"
+                    name="fleet-3"
+                    value="2"
+                    min="0"
+                    max="30"
+                    inputmode="numeric"
+                  />
+                </label>
+                <label class="fleet-input">
+                  <span
+                    class="fleet-input__ship"
+                    data-length="2"
+                    aria-hidden="true"
+                  ></span>
+                  <span class="fleet-input__label">2 squares</span>
+                  <input
+                    type="number"
+                    name="fleet-2"
+                    value="1"
+                    min="0"
+                    max="30"
+                    inputmode="numeric"
+                  />
+                </label>
+              </div>
+            </fieldset>
+
+            <p
+              class="setup-form__error"
+              id="setup-error"
+              role="alert"
+              tabindex="-1"
+            ></p>
+
+            <button
+              class="button button--primary setup-form__start"
+              id="start-button"
+              type="submit"
+            >
+              <svg class="icon" aria-hidden="true" focusable="false">
+                <use href="./assets/icons/icons.svg#crosshairs" />
+              </svg>
+              Start battle
+            </button>
+          </form>
+
+          <noscript>
+            <p class="setup-screen__noscript">
+              Turn on JavaScript to play Battleship Game.
+            </p>
+          </noscript>
+
+          <p class="setup-screen__stats" id="stats-summary">
+            No battles fought yet.
+          </p>
+        </div>
+      </section>
+
+      <!-- ========== GAME SCREEN ========== -->
+      <section
+        class="game-screen"
+        id="game-screen"
+        aria-labelledby="game-title"
+        data-view="enemy"
+        hidden
+      >
+        <h2 class="sr-only" id="game-title">Battle</h2>
+
+        <!-- Turn and last shot -->
+        <div class="status-bar">
+          <p class="status-bar__turn" id="turn-banner">
+            Your turn: fire at the enemy board
+          </p>
+          <p
+            class="status-bar__message"
+            id="game-message"
+            role="status"
+            aria-live="polite"
+          ></p>
+        </div>
+
+        <div class="game-controls">
+          <p class="game-controls__stats">
+            Your shots <b id="player-shots">0</b> · Accuracy
+            <b id="player-accuracy">–</b> · Computer shots
+            <b id="computer-shots">0</b>
+          </p>
+          <div class="game-controls__buttons">
+            <button
+              class="button game-controls__pause"
+              id="pause-button"
+              type="button"
+              aria-pressed="false"
+            >
+              <svg class="icon" aria-hidden="true" focusable="false">
+                <use id="pause-icon" href="./assets/icons/icons.svg#pause" />
+              </svg>
+              <span id="pause-label">Pause</span>
+            </button>
+            <button
+              class="toggle-button"
+              id="music-button"
+              type="button"
+              aria-pressed="true"
+            >
+              <svg class="icon" aria-hidden="true" focusable="false">
+                <use href="./assets/icons/icons.svg#music" />
+              </svg>
+              Music
+            </button>
+            <button
+              class="toggle-button"
+              id="effects-button"
+              type="button"
+              aria-pressed="true"
+            >
+              <svg class="icon" aria-hidden="true" focusable="false">
+                <use
+                  id="effects-icon"
+                  href="./assets/icons/icons.svg#volume-high"
+                />
+              </svg>
+              Sounds
+            </button>
+            <button class="toggle-button" id="quit-button" type="button">
+              <svg class="icon" aria-hidden="true" focusable="false">
+                <use href="./assets/icons/icons.svg#house" />
+              </svg>
+              Menu
+            </button>
+          </div>
+        </div>
+
+        <!-- Narrow screens show one board at a time -->
+        <fieldset class="board-switch">
+          <legend class="sr-only">Show board</legend>
+          <label class="board-switch__option">
+            <input type="radio" name="board-view" value="enemy" checked />
+            <span>Enemy waters</span>
+          </label>
+          <label class="board-switch__option">
+            <input type="radio" name="board-view" value="own" />
+            <span>Your fleet</span>
+          </label>
+        </fieldset>
+
+        <div class="boards">
+          <section
+            class="board-panel board-panel--enemy"
+            aria-labelledby="enemy-title"
+          >
+            <h3 class="board-panel__title" id="enemy-title">
+              Enemy waters
+              <span class="board-panel__count"
+                ><b id="enemy-left">0</b> ships left</span
+              >
+            </h3>
+            <div class="board-panel__scroll">
+              <table
+                class="board"
+                id="enemy-board"
+                aria-label="Enemy board: choose a square to fire at"
+              ></table>
+            </div>
+            <ul
+              class="fleet-list"
+              id="enemy-fleet"
+              aria-label="Enemy ships"
+            ></ul>
+          </section>
+
+          <section
+            class="board-panel board-panel--own"
+            aria-labelledby="own-title"
+          >
+            <h3 class="board-panel__title" id="own-title">
+              Your fleet
+              <span class="board-panel__count"
+                ><b id="own-left">0</b> ships left</span
+              >
+            </h3>
+            <div class="board-panel__scroll">
+              <table
+                class="board board--own"
+                id="own-board"
+                aria-label="Your fleet and the computer's shots"
+              ></table>
+            </div>
+            <ul class="fleet-list" id="own-fleet" aria-label="Your ships"></ul>
+          </section>
+        </div>
+
+        <p class="board-hint">
+          Tip: use the arrow keys to aim and Enter to fire.
+        </p>
+      </section>
+
+      <!-- ========== RESULT DIALOG ========== -->
+      <dialog
+        class="result-dialog"
+        id="result-dialog"
+        aria-labelledby="result-title"
+      >
+        <div
+          class="result-art"
+          id="result-art"
+          data-tone="win"
+          aria-hidden="true"
+        >
+          <svg class="result-art__ship" viewBox="0 0 576 512">
+            <use href="./assets/icons/icons.svg#ship" />
+          </svg>
+          <span class="result-art__wave"></span>
+        </div>
+        <h2 class="result-dialog__title" id="result-title">Battle over</h2>
+        <p class="result-dialog__details" id="result-details"></p>
+        <div class="result-dialog__actions">
+          <button
+            class="button button--primary"
+            id="play-again-button"
+            type="button"
+          >
+            <svg class="icon" aria-hidden="true" focusable="false">
+              <use href="./assets/icons/icons.svg#arrow-rotate-left" />
+            </svg>
+            Play again
+          </button>
+          <button class="button" id="menu-button" type="button">
+            <svg class="icon" aria-hidden="true" focusable="false">
+              <use href="./assets/icons/icons.svg#house" />
+            </svg>
+            Back to menu
+          </button>
+        </div>
+      </dialog>
+    </main>
+
+    <!-- ========== FOOTER ========== -->
+    <!-- The year is updated by scripts/index.js -->
+    <footer class="footer">
+      <p class="footer__disclaimer">Browser game · Portfolio demonstration</p>
+      <p class="footer__copyright">
+        &copy; <span id="footer-year">2026</span> Battleship Game. Built by
+        <a href="https://nm-dev.com" target="_blank" rel="noopener noreferrer"
+          ><svg class="icon" aria-hidden="true" focusable="false">
+            <use href="./assets/icons/icons.svg#code" /></svg
+          >&nbsp;NM Dev.</a
+        >
+      </p>
+    </footer>
+  </body>
+</html>

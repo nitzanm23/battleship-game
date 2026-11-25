@@ -1,0 +1,13 @@
+{
+  "name": "battleship-game",
+  "private": true,
+  "description": "A static turn-based Battleship game with a fair computer opponent.",
+  "license": "MIT",
+  "type": "module",
+  "scripts": {
+    "test": "node --test"
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}
